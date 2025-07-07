@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 7860
+      - 7860  # Just expose the port, let Traefik handle the mapping
     depends_on:
       - postgres-langflow
     environment:
@@ -17,16 +17,16 @@ services:
       - LANGFLOW_NEW_USER_IS_ACTIVE=False
     volumes:
       - langflow-data:/app/langflow
+
   postgres-langflow:
     image: postgres:16
     environment:
       POSTGRES_USER: langflow
       POSTGRES_PASSWORD: langflowpass
       POSTGRES_DB: langflow
-    ports:
-      - 5432
     volumes:
       - langflow-postgres:/var/lib/postgresql/data
+
 volumes:
   langflow-postgres:
   langflow-data:
