@@ -5,9 +5,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 7860  # Just expose the port, let Traefik handle the mapping
+      - 7860
     depends_on:
-      - postgres-langflow
+      postgres-langflow:
+        condition: service_started
     environment:
       - LANGFLOW_DATABASE_URL=postgresql://langflow:langflowpass@postgres-langflow:5432/langflow
       - LANGFLOW_AUTO_LOGIN=False
@@ -17,6 +18,9 @@ services:
       - LANGFLOW_NEW_USER_IS_ACTIVE=False
     volumes:
       - langflow-data:/app/langflow
+    networks:
+      - langflow-network
+    restart: unless-stopped
 
   postgres-langflow:
     image: postgres:16
@@ -26,7 +30,19 @@ services:
       POSTGRES_DB: langflow
     volumes:
       - langflow-postgres:/var/lib/postgresql/data
+    networks:
+      - langflow-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   langflow-postgres:
   langflow-data:
+
+networks:
+  langflow-network:
+    driver: bridge
