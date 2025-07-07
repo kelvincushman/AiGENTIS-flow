@@ -17,6 +17,9 @@ services:
       - LANGFLOW_NEW_USER_IS_ACTIVE=False
     volumes:
       - langflow-data:/app/langflow
+    networks:
+      - vm-aigentisflow-riy6fa
+
   postgres-langflow:
     image: postgres:16
     environment:
@@ -27,6 +30,14 @@ services:
       - 5432
     volumes:
       - langflow-postgres:/var/lib/postgresql/data
+    networks:
+      - vm-aigentisflow-riy6fa
+
 volumes:
   langflow-postgres:
   langflow-data:
+
+networks:
+  vm-aigentisflow-riy6fa:
+    name: vm-aigentisflow-riy6fa
+    external: true
