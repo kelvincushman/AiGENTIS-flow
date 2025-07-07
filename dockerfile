@@ -2,7 +2,7 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies including PostgreSQL development files
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
@@ -11,19 +11,23 @@ RUN apt-get update && apt-get install -y \
     npm \
     postgresql-client \
     libpq-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
-
-# Copy the entire repository
-COPY . /app/
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -U pip
 
-# Install psycopg (PostgreSQL adapter) and asyncpg
-RUN pip install --no-cache-dir psycopg psycopg-binary asyncpg
+# Install Langflow from PyPI with PostgreSQL support
+RUN pip install --no-cache-dir "langflow[postgresql]"
 
-# Install Langflow with all dependencies
-RUN pip install --no-cache-dir -e .
+# Install additional PostgreSQL drivers to be sure
+RUN pip install --no-cache-dir psycopg[binary] psycopg2-binary asyncpg
+
+# Copy any custom files (for your styling changes later)
+COPY . /app/
+
+# Create necessary directories
+RUN mkdir -p /app/langflow
 
 EXPOSE 7860
 
